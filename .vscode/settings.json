@@ -1,0 +1,19 @@
+{
+    "python.pythonPath": "venv\\Scripts\\python.exe",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "xprotocol"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "askForPassword": true,
+            "driver": "MySQL",
+            "name": "COVID19",
+            "database": "COVID",
+            "username": "host",
+            "connectionTimeout": 60
+        }
+    ]
+}
