@@ -40,7 +40,7 @@ def salvar():
             db.close()
 
 window = tk.Tk()
-window.title('COVID-19 TESTES')
+window.title('ADICIONAR TESTES')
 
 lbl_id = tk.Label(window, text='ID:')
 lbl_id.grid(column=0, row=0, padx=3, pady=3, sticky='W')
