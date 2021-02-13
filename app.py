@@ -7,6 +7,8 @@ from tkinter.constants import DISABLED, LEFT, NORMAL
 from tkinter import messagebox
 from tkcalendar import *
 
+aberto = False
+
 def criar_tabela():
     dgv_testes['columns'] = ('ID', 'Título', 'Data', 'Base de Dados', 'Técnica', 'Acurácia', 'Precisão', 'Deficiência', 'Desafio')
 
@@ -169,11 +171,24 @@ def excluir(id):
 
     finally:
         db.close()
-        carregar_tabela()
+
+def bloquear_botoes():
+    btn_salvar.config(state=DISABLED)
+    btn_alterar.config(state=DISABLED)
+    btn_excluir.config(state=DISABLED)
+
+def desbloquear_botoes(janela):
+    btn_salvar.config(state=NORMAL)
+    btn_alterar.config(state=NORMAL)
+    btn_excluir.config(state=NORMAL)
+    janela.destroy()
 
 def reg_window(tipo):
+    bloquear_botoes()
+
     reg_window = tk.Toplevel()
     reg_window.title('ADICIONAR TESTES')
+    reg_window.wm_protocol('WM_DELETE_WINDOW', lambda:desbloquear_botoes(reg_window))
 
     lbl_id = tk.Label(reg_window, text='ID:')
     lbl_id.grid(column=0, row=0, padx=3, pady=3, sticky='W')
@@ -236,7 +251,7 @@ def reg_window(tipo):
         txt_id.delete(0, 'end')
         txt_id.insert(0, selecionar_ultimo_id()+1)
         txt_id.config(state=DISABLED)
-
+        
     else:
         btn_alterar = tk.Button(reg_window, text='Alterar', width=10, height=1, command=lambda: alterar(selecionar_id(), str(dtp_data.get_date()), dtp_data.get_date(), txt_base_dados.get(), txt_tecnica.get(), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get(), txt_desafio.get()))
         btn_alterar.grid(column=2, row=6, padx=3, pady=3, sticky='SE')
