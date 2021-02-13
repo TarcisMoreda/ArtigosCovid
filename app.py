@@ -1,8 +1,9 @@
 import tkinter as tk
 import mysql.connector
+import datetime
 
 from tkinter.ttk import *
-from tkinter.constants import DISABLED, LEFT
+from tkinter.constants import DISABLED, LEFT, NORMAL
 from tkinter import messagebox
 from tkcalendar import *
 
@@ -63,7 +64,35 @@ def selecionar_id():
     except:
         messagebox.showwarning('Erro', 'Selecione um item da lista.')
 
-def salvar(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio):
+def selecionar_ultimo_id():
+    try:
+        ultimo = dgv_testes.get_children()[-1]
+        return (dgv_testes.item(ultimo).get('values')[0])
+
+    except:
+        messagebox.showwarning('Erro', 'Selecione um item da lista.')
+
+def escrever_textbox(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio):
+    try:
+        item_atual = dgv_testes.focus()
+        tudo = dgv_testes.item(item_atual).get('values')
+        data_formatada = datetime.datetime.strptime(str(tudo[2]), '%Y-%m-%d').strftime('%d/%m/%Y')
+
+        titulo.insert(0, tudo[1])
+        data.set_date(data_formatada)
+        base_dados.insert(0, tudo[3])
+        tecnica.insert(0, tudo[4])
+        acuracia.insert(0, tudo[5])
+        precisao.insert(0, tudo[6])
+        deficiencia.insert(0, tudo[7])
+        desafio.insert(0, tudo[8])
+    
+    except Exception as ex:
+            messagebox.showwarning('Erro', ex)
+
+    
+
+def salvar(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio, txt_id):
     if titulo == '' or tecnica == '' or acuracia == '' or precisao == '' or desafio == '' or base_dados == '' or  deficiencia == '':
         messagebox.showwarning('Erro', 'Preencha todos os campos.')
 
@@ -77,7 +106,7 @@ def salvar(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, d
             )
         
             cursor = db.cursor()
-            cursor.execute('INSERT INTO `covid`.`testes` (`titulo`, `data`, `base_dados`, `tecnica`, `acuracia`, `precisao`, `deficiencia`, `desafio`) VALUES ("%s", STR_TO_DATE("%s","%%d/%%m/%%Y"), "%s", "%s", "%s", "%s", "%s", "%s");' %(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio))
+            cursor.execute('INSERT INTO `covid`.`testes` (`titulo`, `data`, `base_dados`, `tecnica`, `acuracia`, `precisao`, `deficiencia`, `desafio`) VALUES ("%s", STR_TO_DATE("%s","%%Y-%%m-%%d"), "%s", "%s", "%s", "%s", "%s", "%s");' %(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio))
             db.commit()
 
             messagebox.showinfo('Sucesso', 'Registrado com sucesso ao banco de dados.')
@@ -88,6 +117,11 @@ def salvar(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, d
         finally:
             db.close()
             carregar_tabela()
+            
+            txt_id.config(state=NORMAL)
+            txt_id.delete(0, 'end')
+            txt_id.insert(0, selecionar_ultimo_id()+1)
+            txt_id.config(state=DISABLED)
 
 def alterar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio):
     if titulo == '' or tecnica == '' or acuracia == '' or precisao == '' or desafio == '' or base_dados == '' or  deficiencia == '':
@@ -103,7 +137,7 @@ def alterar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficienc
             )
         
             cursor = db.cursor()
-            cursor.execute('UPDATE `covid`.`testes` SET `titulo` = "%s", `data` = STR_TO_DATE("%s","%%d/%%m/%%Y"), `base_dados` = "%s", `tecnica` = "%s", `acuracia` = "%s", `precisao` = "%s", `deficiencia` = "%s", `desafio` = "%s" WHERE `id` = %s' %(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio, id))
+            cursor.execute('UPDATE `covid`.`testes` SET `titulo` = "%s", `data` = STR_TO_DATE("%s","%%Y-%%m-%%d"), `base_dados` = "%s", `tecnica` = "%s", `acuracia` = "%s", `precisao` = "%s", `deficiencia` = "%s", `desafio` = "%s" WHERE `id` = %s' %(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio, id))
             db.commit()
 
             messagebox.showinfo('Sucesso', 'Registro alterado com sucesso.')
@@ -144,7 +178,7 @@ def reg_window(tipo):
     lbl_id = tk.Label(reg_window, text='ID:')
     lbl_id.grid(column=0, row=0, padx=3, pady=3, sticky='W')
 
-    txt_id = tk.Entry(reg_window, width=5, state=DISABLED)
+    txt_id = tk.Entry(reg_window, width=5)
     txt_id.grid(column=0, row=1, padx=3, pady=3, sticky='NW')
 
     lbl_titulo = tk.Label(reg_window, text='Título:')
@@ -156,7 +190,7 @@ def reg_window(tipo):
     lbl_data = tk.Label(reg_window, text='Data:')
     lbl_data.grid(column=2, row=0, padx=3, pady=3, sticky='W')
 
-    dtp_data = Calendar(reg_window, selectmode='day')
+    dtp_data = DateEntry(reg_window, selectmode='day')
     dtp_data.grid(column=2, row=1, padx=3, pady=3, sticky='NW')
 
     lbl_base_dados = tk.Label(reg_window, text='Base de Dados:')
@@ -192,17 +226,27 @@ def reg_window(tipo):
     lbl_desafio = tk.Label(reg_window, text='Desafio:')
     lbl_desafio.grid(column=2, row=4, padx=3, pady=3, sticky='W')
 
-    txt_desafio = tk.Entry(reg_window, width=25, justify=LEFT)
+    txt_desafio = tk.Entry(reg_window, width=25)
     txt_desafio.grid(column=2, row=5, padx=3, pady=3, sticky='NW')
 
     if tipo:
-        btn_salvar = tk.Button(reg_window, text='Salvar', width=10, height=1, command=lambda: salvar(txt_titulo.get(), dtp_data.get_date(), txt_base_dados.get(), txt_tecnica.get(), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get(), txt_desafio.get()))
+        btn_salvar = tk.Button(reg_window, text='Salvar', width=10, height=1, command=lambda: salvar(txt_titulo.get(), str(dtp_data.get_date()), txt_base_dados.get(), txt_tecnica.get(), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get(), txt_desafio.get(), txt_id))
         btn_salvar.grid(column=2, row=6, padx=3, pady=3, sticky='SE')
-    else:
-        btn_alterar = tk.Button(reg_window, text='Alterar', width=10, height=1, command=lambda: alterar(selecionar_id(), txt_titulo.get(), dtp_data.get_date(), txt_base_dados.get(), txt_tecnica.get(), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get(), txt_desafio.get()))
-        btn_alterar.grid(column=2, row=6, padx=3, pady=3, sticky='SE')
         
+        txt_id.delete(0, 'end')
+        txt_id.insert(0, selecionar_ultimo_id()+1)
+        txt_id.config(state=DISABLED)
 
+    else:
+        btn_alterar = tk.Button(reg_window, text='Alterar', width=10, height=1, command=lambda: alterar(selecionar_id(), str(dtp_data.get_date()), dtp_data.get_date(), txt_base_dados.get(), txt_tecnica.get(), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get(), txt_desafio.get()))
+        btn_alterar.grid(column=2, row=6, padx=3, pady=3, sticky='SE')
+
+        txt_id.delete(0, 'end')
+        txt_id.insert(0, selecionar_id())
+        txt_id.config(state=DISABLED)
+
+        escrever_textbox(txt_titulo, dtp_data, txt_base_dados, txt_tecnica, txt_acuracia, txt_precisao, txt_deficiencia, txt_desafio)
+        
 window = tk.Tk()
 window.title('TESTES COVID IA')
 
