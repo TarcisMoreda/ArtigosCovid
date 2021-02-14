@@ -109,12 +109,14 @@ def bloquear_botoes():
     btn_alterar_win.config(state=DISABLED)
     btn_excluir.config(state=DISABLED)
     btn_pesquisar.config(state=DISABLED)
+    btn_limpar.config(state=DISABLED)
 
 def desbloquear_botoes(janela):
     btn_salvar_win.config(state=NORMAL)
     btn_alterar_win.config(state=NORMAL)
     btn_excluir.config(state=NORMAL)
     btn_pesquisar.config(state=NORMAL)
+    btn_limpar.config(state=NORMAL)
     janela.destroy()
 
 def limpar_campos(titulo, base_dados, tecnica, acuracia, precisao, deficiencia, desafio):
