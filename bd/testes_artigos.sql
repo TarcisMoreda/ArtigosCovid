@@ -28,12 +28,23 @@ CREATE TABLE `artigos` (
   `data` date NOT NULL,
   `base_dados` varchar(500) NOT NULL,
   `tecnica` varchar(500) NOT NULL,
+  `acuracia` varchar(500) NOT NULL,
   `precisao` varchar(500) NOT NULL,
   `deficiencia` varchar(500) NOT NULL,
   `desafio` varchar(500) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `artigos`
+--
+
+LOCK TABLES `artigos` WRITE;
+/*!40000 ALTER TABLE `artigos` DISABLE KEYS */;
+INSERT INTO `artigos` VALUES (2,'a','2021-02-14','a','a','a','a','a','a'),(3,'a','2021-02-14','a','a','a','a','a','a'),(4,'a','2021-02-14','a','a','a','a','a','a'),(5,'a','2021-02-14','a','a','a','a','a','a'),(6,'a','2021-02-14','a','a','a','a','a','a'),(7,'a	','2021-02-14','a	a','a','a','a','a','a'),(8,'a','2021-02-14','a','a','a','a','a','a'),(9,'a','2021-02-14','a','a','a','a','a','a'),(10,'a','2021-02-14','a','a','a','a','a','a'),(11,'a','2021-02-14','a','a','a','a','a','a');
+/*!40000 ALTER TABLE `artigos` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -44,4 +55,4 @@ CREATE TABLE `artigos` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-14 11:44:14
+-- Dump completed on 2021-02-14 14:49:43
