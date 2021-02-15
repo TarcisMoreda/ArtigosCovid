@@ -1,12 +1,13 @@
-from calendar import c
 import tkinter as tk
 import mysql.connector
 import datetime
+import xlsxwriter
 
 from tkinter.ttk import *
 from tkinter.constants import DISABLED, END, NORMAL
 from tkinter import messagebox
 from tkcalendar import *
+from xlsxwriter import workbook
 
 aberto = False
 
@@ -110,6 +111,7 @@ def bloquear_botoes():
     btn_excluir.config(state=DISABLED)
     btn_pesquisar.config(state=DISABLED)
     btn_limpar.config(state=DISABLED)
+    btn_exportar.config(state=DISABLED)
 
 def desbloquear_botoes(janela):
     btn_salvar_win.config(state=NORMAL)
@@ -117,6 +119,7 @@ def desbloquear_botoes(janela):
     btn_excluir.config(state=NORMAL)
     btn_pesquisar.config(state=NORMAL)
     btn_limpar.config(state=NORMAL)
+    btn_exportar.config(state=NORMAL)
     janela.destroy()
 
 def limpar_campos(titulo, base_dados, tecnica, acuracia, precisao, deficiencia, desafio):
@@ -192,6 +195,9 @@ def alterar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficienc
             desbloquear_botoes(janela)
 
 def excluir(id):
+    if id == 0:
+        return
+
     try:
         db = mysql.connector.connect(
         host = 'localhost',
@@ -211,6 +217,7 @@ def excluir(id):
 
     finally:
         db.close()
+        carregar_tabela()
 
 def pesquisar(termo, coluna):
     resultado = []
@@ -237,6 +244,31 @@ def limpar_pesquisa():
     txt_termo.delete(0, 'end')
     carregar_tabela()
 
+def exportar_excel():
+    wb = xlsxwriter.Workbook('Artigos.xlsx')
+    ws = wb.add_worksheet()
+    row = 2
+
+    ws.write(0, 0, 'Artigos:')
+
+    ws.write(1, 0, 'ID:')
+    ws.write(1, 1, 'Título:')
+    ws.write(1, 2, 'Data:')
+    ws.write(1, 3, 'Base de Dados:')
+    ws.write(1, 4, 'Técnica:')
+    ws.write(1, 5, 'Acuracia:')
+    ws.write(1, 6, 'Precisão:')
+    ws.write(1, 7, 'Deficiência:')
+    ws.write(1, 8, 'Desafio:')
+
+    for artigo in dgv_artigos.get_children():
+        for col in range(9):
+            ws.write(row, col, dgv_artigos.item(artigo)['values'][col])
+
+        row += 1
+
+    wb.close()
+
 def reg_window(tipo, dgv_artigos):
     bloquear_botoes()
 
@@ -248,12 +280,13 @@ def reg_window(tipo, dgv_artigos):
         messagebox.showwarning('Erro', 'Cadastre um item.')
         desbloquear_botoes(reg_window)
 
-    try:
-        dgv_artigos.item(dgv_artigos.focus()).get('values')[0]
+    if not tipo:
+        try:
+            dgv_artigos.item(dgv_artigos.focus()).get('values')[0]
     
-    except:
-        messagebox.showwarning('Erro', 'Selecione um item.')
-        desbloquear_botoes(reg_window)
+        except:
+            messagebox.showwarning('Erro', 'Selecione um item.')
+            desbloquear_botoes(reg_window)
 
     lbl_id = tk.Label(reg_window, text='ID:')
     lbl_id.grid(column=0, row=0, padx=3, pady=3, sticky='W')
@@ -369,5 +402,8 @@ btn_alterar_win.grid(column=1, row=3, padx=3, pady=3, sticky='NSEW')
 
 btn_excluir = tk.Button(window, text='Excluir\nSelecionado', width=10, height=2, command=lambda: excluir(selecionar_id()))
 btn_excluir.grid(column=2, row=3, padx=3, pady=3, sticky='NSEW')
+
+btn_exportar = tk.Button(window, text='Exportar itens atuais para tabela do Excel', width=10, height=2, command=exportar_excel)
+btn_exportar.grid(column=0, row=4, padx=3, pady=3, columnspan=4, sticky='NSEW')
 
 window.mainloop()
