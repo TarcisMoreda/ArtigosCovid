@@ -192,12 +192,16 @@ def alterar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficienc
                 desafio
             ]
 
-            arquivo = open('db.dat', 'wrb')
+            arquivo = open('db.dat', 'rb')
             dict_arquivo = pickle.load(arquivo)
+            arquivo.close()
 
-            for registros in dict_arquivo:
-                for dict_artigo[0] in registros:
-                    print(registros)
+            arquivo = open('db.dat', 'wb')
+
+            for i in dict_arquivo:
+                if dict_artigo[0] == i[0]:
+                    index = dict_arquivo.index(i)
+                    dict_arquivo[index] = dict_artigo
 
             pickle.dump(dict_arquivo, arquivo)
 
