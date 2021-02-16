@@ -1,23 +1,15 @@
 import tkinter as tk
+import mysql.connector
 import datetime
 import xlsxwriter
-import pickle
 
 from tkinter.ttk import *
 from tkinter.constants import DISABLED, END, NORMAL
 from tkinter import messagebox
 from tkcalendar import *
+from xlsxwriter import workbook
 
-try:
-    arquivo = open('db.dat', 'rb')
-    print(pickle.load(arquivo))
-
-except:
-    arquivo = open('db.dat', 'wb')
-    pickle.dump([], arquivo)
-
-finally:
-    arquivo.close()
+aberto = False
 
 def criar_tabela():
     dgv_artigos['columns'] = ('ID', 'Título', 'Data', 'Base de Dados', 'Técnica', 'Acurácia', 'Precisão', 'Deficiência', 'Desafio')
@@ -46,18 +38,28 @@ def criar_tabela():
 
 def carregar_tabela():
     dgv_artigos.delete(*dgv_artigos.get_children())
-    try:
-        arquivo = open('db.dat', 'rb')
-        dict_arquivo = pickle.load(arquivo)
 
-        for row in dict_arquivo:
+    try:
+        db = mysql.connector.connect(
+            host = 'localhost',
+            user = 'root',
+            passwd = 'Tamanda010203',
+            database = 'testes'
+        )
+        
+        cursor = db.cursor()
+        cursor.execute('SELECT * FROM testes.artigos;')
+        resultados = cursor.fetchall()
+        db.commit()
+
+        for row in resultados:
             dgv_artigos.insert(parent='', index='end', values=(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
 
     except Exception as ex:
             messagebox.showwarning('Erro', ex)
 
     finally:
-        arquivo.close()
+        db.close()
 
 def selecionar_id():
     try:
@@ -72,7 +74,7 @@ def selecionar_ultimo_id():
     try:
         if len(dgv_artigos.get_children()) != 0:
             ultimo = dgv_artigos.get_children()[-1]
-            return (int(dgv_artigos.item(ultimo).get('values')[0]))
+            return (dgv_artigos.item(ultimo).get('values')[0])
         
         else:
             return 0
@@ -129,32 +131,22 @@ def limpar_campos(titulo, base_dados, tecnica, acuracia, precisao, deficiencia, 
     deficiencia.delete("1.0", "end")
     desafio.delete("1.0", "end")
 
-def salvar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio, txt_id, txt_titulo, txt_base_dados, txt_tecnica, txt_acuracia, txt_precisao, txt_deficiencia, txt_desafio):
+def salvar(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio, txt_id, txt_titulo, txt_base_dados, txt_tecnica, txt_acuracia, txt_precisao, txt_deficiencia, txt_desafio):
     if titulo == '' or tecnica == '' or acuracia == '' or precisao == '' or desafio == '' or base_dados == '' or  deficiencia == '':
         messagebox.showwarning('Erro', 'Preencha todos os campos.')
 
     else:
         try:
-            dict_artigo = [
-                id,
-                titulo,
-                data,
-                base_dados,
-                tecnica,
-                acuracia,
-                precisao,
-                deficiencia,
-                desafio
-            ]
-
-            arquivo = open('db.dat', 'rb')
-            dict_arquivo = pickle.load(arquivo)
-            arquivo.close()
-            
-            dict_arquivo.append(dict_artigo)
-
-            arquivo = open('db.dat', 'wb')
-            pickle.dump(dict_arquivo, arquivo)
+            db = mysql.connector.connect(
+            host = 'localhost',
+            user = 'root',
+            passwd = 'Tamanda010203',
+            database = 'testes'
+            )
+        
+            cursor = db.cursor()
+            cursor.execute('INSERT INTO `testes`.`artigos` (`titulo`, `data`, `base_dados`, `tecnica`, `acuracia`, `precisao`, `deficiencia`, `desafio`) VALUES ("%s", STR_TO_DATE("%s","%%Y-%%m-%%d"), "%s", "%s", "%s", "%s", "%s", "%s");' %(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio))
+            db.commit()
 
             messagebox.showinfo('Sucesso', 'Registrado com sucesso ao banco de dados.')
 
@@ -162,7 +154,7 @@ def salvar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficienci
             messagebox.showwarning('Erro', ex)
 
         finally:
-            arquivo.close()
+            db.close()
             carregar_tabela()
             
             txt_id.config(state=NORMAL)
@@ -181,29 +173,16 @@ def alterar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficienc
         
     else:
         try:
-            dict_artigo = [
-                id,
-                titulo,
-                data,
-                base_dados,
-                acuracia,
-                precisao,
-                deficiencia,
-                desafio
-            ]
-
-            arquivo = open('db.dat', 'rb')
-            dict_arquivo = pickle.load(arquivo)
-            arquivo.close()
-
-            arquivo = open('db.dat', 'wb')
-
-            for i in dict_arquivo:
-                if dict_artigo[0] == i[0]:
-                    index = dict_arquivo.index(i)
-                    dict_arquivo[index] = dict_artigo
-
-            pickle.dump(dict_arquivo, arquivo)
+            db = mysql.connector.connect(
+            host = 'localhost',
+            user = 'root',
+            passwd = 'Tamanda010203',
+            database = 'testes'
+            )
+        
+            cursor = db.cursor()
+            cursor.execute('UPDATE `testes`.`artigos` SET `titulo` = "%s", `data` = STR_TO_DATE("%s","%%Y-%%m-%%d"), `base_dados` = "%s", `tecnica` = "%s", `acuracia` = "%s", `precisao` = "%s", `deficiencia` = "%s", `desafio` = "%s" WHERE `id` = %s' %(titulo, data, base_dados, tecnica, acuracia, precisao, deficiencia, desafio, id))
+            db.commit()
 
             messagebox.showinfo('Sucesso', 'Registro alterado com sucesso.')
 
@@ -211,7 +190,7 @@ def alterar(id, titulo, data, base_dados, tecnica, acuracia, precisao, deficienc
             messagebox.showwarning('Erro', ex)
 
         finally:
-            arquivo.close()
+            db.close()
             carregar_tabela()
             desbloquear_botoes(janela)
 
@@ -220,12 +199,16 @@ def excluir(id):
         return
 
     try:
-        arquivo = open('db.dat', 'wrb')
-        dict_arquivo = pickle.load(arquivo)
-
-        for registros in dict_arquivo:
-                if dict_arquivo[registros].get('ID') == id:
-                    dict_arquivo[registros].pop()
+        db = mysql.connector.connect(
+        host = 'localhost',
+        user = 'root',
+        passwd = 'Tamanda010203',
+        database = 'testes'
+        )
+        
+        cursor = db.cursor()
+        cursor.execute('DELETE FROM `testes`.`artigos` WHERE id = %s;' %(id))
+        db.commit()
 
         messagebox.showinfo('Sucesso', 'Registro excluído com sucesso.')
 
@@ -233,7 +216,7 @@ def excluir(id):
         messagebox.showwarning('Erro', ex)
 
     finally:
-        arquivo.close()
+        db.close()
         carregar_tabela()
 
 def pesquisar(termo, coluna):
@@ -360,7 +343,7 @@ def reg_window(tipo, dgv_artigos):
     txt_desafio.grid(column=0, row=11, padx=3, pady=3, sticky='NW', columnspan=4)
 
     if tipo:
-        btn_salvar = tk.Button(reg_window, text='Salvar', width=10, height=2, command=lambda: salvar(txt_id.get(), txt_titulo.get("1.0",'end-1c'), str(dtp_data.get_date()), txt_base_dados.get("1.0",'end-1c'), txt_tecnica.get("1.0",'end-1c'), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get("1.0",'end-1c'), txt_desafio.get("1.0",'end-1c'), 
+        btn_salvar = tk.Button(reg_window, text='Salvar', width=10, height=2, command=lambda: salvar(txt_titulo.get("1.0",'end-1c'), str(dtp_data.get_date()), txt_base_dados.get("1.0",'end-1c'), txt_tecnica.get("1.0",'end-1c'), txt_acuracia.get(), txt_precisao.get(), txt_deficiencia.get("1.0",'end-1c'), txt_desafio.get("1.0",'end-1c'), 
                                                                                                      txt_id, txt_titulo, txt_base_dados, txt_tecnica, txt_acuracia, txt_precisao, txt_deficiencia, txt_desafio))
         btn_salvar.grid(column=0, row=13, padx=3, pady=3, sticky='NSEW', columnspan=4, rowspan=2)
         
