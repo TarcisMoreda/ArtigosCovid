@@ -7,7 +7,7 @@ O programa foi criado no intuito de guardar artigos de  uma maneira mais direta 
 Foi feito pelo aluno Tárcis M. P. M. de Melo  estudante do IFTM de Ituiutaba como treino e experiência em desenvolvimento em Python.
 
 ## Funcionalidades:
-- Registro de artigos em arquivo serializado binário
+- Registro de artigos em banco de dados MySQL
 - Alteração de registros
 - Exclusão de registros
 - Visualização dos registros dentro do programa
@@ -15,6 +15,6 @@ Foi feito pelo aluno Tárcis M. P. M. de Melo  estudante do IFTM de Ituiutaba co
 
 ## Requerimentos:
 - tkinter (já incluso em versões novas do python)
-- pickle (já incluso em versões novas do python)
+- mysql.connector (já incluso em versões novas do python)
 - tkcalendar (instalação pelo pip)
 - xlsxwriter (instalação pelo pip)
