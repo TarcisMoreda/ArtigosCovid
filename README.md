@@ -15,6 +15,6 @@ Foi feito pelo aluno Tárcis M. P. M. de Melo  estudante do IFTM de Ituiutaba co
 
 ## Requerimentos:
 - tkinter (já incluso em versões novas do python)
-- mysql.connector (já incluso em versões novas do python)
+- mysql.connector (instalação pelo pip)
 - tkcalendar (instalação pelo pip)
 - xlsxwriter (instalação pelo pip)
