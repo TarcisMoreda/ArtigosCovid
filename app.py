@@ -7,9 +7,6 @@ from tkinter.ttk import *
 from tkinter.constants import DISABLED, END, NORMAL
 from tkinter import messagebox
 from tkcalendar import *
-from xlsxwriter import workbook
-
-aberto = False
 
 def criar_tabela():
     dgv_artigos['columns'] = ('ID', 'Título', 'Data', 'Base de Dados', 'Técnica', 'Acurácia', 'Precisão', 'Deficiência', 'Desafio')
@@ -273,7 +270,13 @@ def reg_window(tipo, dgv_artigos):
     bloquear_botoes()
 
     reg_window = tk.Toplevel()
-    reg_window.title('ADICIONAR ARTIGOS')
+    
+    if tipo:
+        reg_window.title('ADICIONAR ARTIGOS')
+    
+    else:
+        reg_window.title('ALTERAR ARTIGO')
+
     reg_window.wm_protocol('WM_DELETE_WINDOW', lambda:desbloquear_botoes(reg_window))
 
     if len(dgv_artigos.get_children()) == 0 and not tipo:
