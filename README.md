@@ -13,8 +13,14 @@ Foi feito pelo aluno Tárcis M. P. M. de Melo  estudante do IFTM de Ituiutaba co
 - Visualização dos registros dentro do programa
 - Exportação dos registros para arquivo .xlsx(Excel)
 
-## Requerimentos:
+## Requisitos:
 - tkinter (já incluso em versões novas do python)
 - mysql.connector (instalação pelo pip)
 - tkcalendar (instalação pelo pip)
 - xlsxwriter (instalação pelo pip)
+
+```bash
+pip install mysql.connector
+pip install tkcalendar
+pip install xlsxwriter
+```
